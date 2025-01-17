@@ -1,0 +1,6 @@
+- name: Ensure a line is in the file
+  ansible.builtin.lineinfile:
+    path: /path/to/your/file.txt
+    line: 'This is the line to add'
+    create: yes
+
