@@ -1,0 +1,9 @@
+---
+- name: Dynamically populate /etc/hosts based on facts gathered from remote hosts
+  hosts: all
+  tasks:
+
+    - name: Update hosts file based on j2 file
+      template: 
+        src: /home/ansible/hosts.j2
+        dest: /etc/hosts
