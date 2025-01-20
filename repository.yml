@@ -1,0 +1,28 @@
+---
+- name: Configure clients to use custom repository
+  hosts: all
+  tasks: 
+
+    - name: Update client config AppStream
+      yum_repository:
+        name: AppStream
+        description: AppStream
+        baseurl: http://shaneaap.ad.shaneshomelab.com/AppStream
+        gpgcheck: no
+        enabled: true
+ 
+    - name: Update client config BaseOS
+      yum_repository:
+        name: BaseOS
+        description: BaseOS
+        baseurl: http://shaneaap.ad.shaneshomelab.com/BaseOS
+        gpgcheck: no
+        enabled: true
+
+    - name: Check client is using repository
+      command: dnf repolist
+      register: repos
+
+    - name: Output contents
+      debug: 
+        msg: "{{ repos }}"
