@@ -1,0 +1,5 @@
+{% for host in groups['all'] %} 
+    {{ hostvars[host]['ansible_facts']['default_ipv4']['address'] }}  {{ hostvars[host]['ansible_facts']['hostname'] }}  {{ hostvars[host]['ansible_facts']['fqdn'] }} 
+{% endfor %} 
+
+# Gathers facts from all remote hosts in Ansible inventory, including IP address, hostname, FQDN, and sends output to /etc/hosts - to be used with dynamic_hosts_file_update.yml
