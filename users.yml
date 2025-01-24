@@ -1,0 +1,7 @@
+users:
+  - username: shane
+    pwd: shanespassword
+    grp: wheel
+  - username: bob
+    pwd: bobspassword
+    grp: wheel
