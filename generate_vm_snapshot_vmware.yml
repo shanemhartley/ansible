@@ -1,0 +1,19 @@
+---
+- name: Generate snapshot of host
+  hosts: localhost
+  become: true
+  gather_facts: false
+  vars_files:
+    - vault.yml
+  tasks: 
+    - name: Take a snapshot
+      vmware.vmware.vm_snapshot:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        datacenter: "{{ datacenter_name }}"
+        folder: "/{{ datacenter_name }}/vm/"
+        name: "{{ hostname }}"
+        state: present
+        snapshot_name: Snapshot_AAP
+        description: Snapshot of host

@@ -1,0 +1,20 @@
+---
+- name: Gather info all hosts
+  hosts: localhost
+  become: true
+  gather_facts: false
+  vars_files:
+    - vault.yml
+  tasks: 
+    - name: Get info for all hosts - 'all' host group
+      vmware.vmware.guest_info:
+        hostname: <VCENTER_FQDN>
+        validate_certs: false
+        username: <VSPHERE_ADMIN_USER>
+        password: "{{ vcenter_password }}"
+        guest_name: "{{ item }}"
+      loop: "{{ groups['all'] }}"
+      register: result
+    - name: Output result
+      debug:
+        msg: "{{ result }}"

@@ -1,0 +1,14 @@
+---
+version: 3
+images:
+  base_image:
+    name: registry.redhat.io/ansible-automation-platform-24/ee-minimal-rhel8:latest 
+build_arg_defaults:
+ ANSIBLE_GALAXY_CLI_COLLECTION_OPTS: '--ignore-certs'
+dependencies:
+  galaxy: requirements.yml
+options:
+    package_manager_path: /usr/bin/microdnf
+additional_build_steps:
+    prepend_base:     
+        - RUN $PYCMD -m pip install --no-cache-dir bindep pyyaml packaging pyVmomi vmware-vcenter vmware-vapi-common-client aiohttp pysnow requests pywinrm netaddr dumb-init==1.2.5 --trusted-host pypi.org --trusted-host files.pythonhosted.org --trusted-host pypi.python.org

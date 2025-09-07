@@ -1,0 +1,17 @@
+---
+- name: Run faillock on account
+  hosts: all
+  become: true
+  become_user: root
+  vars_prompt: 
+    - name: username
+      prompt: What is your username?
+      private: false
+  tasks:
+    - name: Run faillock command
+      command: faillock --user "{{ username }}" --reset
+  
+    - name: Confirmation
+      debug: 
+        msg: User account "{{ username }}" has been reset
+

@@ -1,0 +1,15 @@
+---
+- name: Check for existence of a file
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Check for file
+      ansible.builtin.stat:
+        path: /var/log/backup.tar.gz
+      register: p
+
+    - name: Output file stats
+      ansible.builtin.debug:
+        msg: "File Exists"
+      when: p.stat.exists

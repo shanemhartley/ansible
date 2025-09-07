@@ -1,0 +1,10 @@
+---
+- name: Toast Message
+  hosts: all
+  gather_facts: false
+  tasks:
+  - name: Test Windows Message
+    win_msg:
+      to: "*"
+      display_seconds: 15
+      msg: "ε(´｡•᎑•`)っ 💕 Hello from the linux team! ( ͡° ͜ʖ ͡°)"

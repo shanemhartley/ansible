@@ -1,0 +1,57 @@
+---
+- hosts: all
+  become: true
+  become_user: root
+  gather_facts: false
+  tasks:
+    - name: Remove openjdk11 from dnf
+      dnf:
+        name: java-11-openjdk 
+        state: absent
+    - name: Remove openjdk11 headless from dnf
+      dnf:
+        name: java-11-openjdk-headless
+        state: absent
+    - name: Store files for etc
+      ansible.builtin.find:
+        paths: /etc/alternatives
+        file_type: directory
+        recurse: yes
+        patterns: '(?i)jre11.*'
+        use_regex: true
+      register: etc
+ 
+    - name: Remove etc files
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: absent
+      loop: "{{ etc.files }}"
+    - name: Store files for dirs
+      ansible.builtin.find:
+        paths: /usr/lib/jvm
+        file_type: directory
+        recurse: yes
+        patterns: '(?i)java-11-openjdk.*'
+        use_regex: true
+      register: dirs
+  
+    - name: Remove dirs
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: absent
+      loop: "{{ dirs.files }}"
+ 
+    - name: Store files for links
+      ansible.builtin.find:
+        paths: /usr/lib/jvm
+        file_type: link
+        recurse: yes
+        patterns: '(?i)jre-11.*'
+        use_regex: true
+      register: links
+    - name: Remove links
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: absent
+      loop: "{{ links.files }}"
+...

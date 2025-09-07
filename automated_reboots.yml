@@ -1,0 +1,20 @@
+---
+- name: "Automatic Reboots"
+  hosts: all
+  become: true
+  become_user: root
+  tasks:
+    - name: "Check for reboot required"
+      ansible.builtin.command:
+        cmd: needs-restarting -r
+      register: restart_out
+      failed_when: false
+      changed_when: false
+    - name: "Set fact module utilization"
+      set_fact:
+        reboot_required: "'Reboot is required' in {{ restart_out.stdout }}"
+    - name: "Reboot if required after package installation"
+      ansible.builtin.reboot: 
+        reboot_timeout: 3600 
+      when: reboot_required # When value == true, reboot, Limits are set set in AAP
+...

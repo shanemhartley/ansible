@@ -1,0 +1,30 @@
+---
+version: 3
+images:
+  base_image:
+    name: registry.redhat.io/ansible-automation-platform-24/ee-minimal-rhel8:latest
+dependencies:
+  galaxy:
+    collections:
+      - ansible.windows
+      - community.windows
+      - community.general
+      - ansible.utils
+      - ansible.posix
+      - chocolatey.chocolatey
+      - microsoft.ad
+  python:
+    - requests-credssp > 1.2.0
+options:
+  package_manager_path: /usr/bin/microdnf
+additional_build_files:
+  # copy the CA public key into the build context, we will copy and use it in the base image later
+  - src: files
+    dest: configs
+additional_build_steps:
+  prepend_base:
+    - COPY _build/configs/*.pem /usr/share/pki/ca-trust-source/anchors
+    - COPY _build/configs/*.cer /usr/share/pki/ca-trust-source/anchors
+      #- COPY _build/configs/ansible.cfg /etc/ansible/ansible.cfg
+    - RUN update-ca-trust
+      #- RUN pip3 install --upgrade pip setuptools wheel --trusted-host pypi.org --trusted-host files.pythonhosted.org --trusted-host pypi.python.org

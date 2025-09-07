@@ -1,0 +1,19 @@
+---
+- name: Gather VM info 
+  hosts: localhost
+  become: true
+  gather_facts: false
+  vars_files:
+    - vault.yml
+  tasks: 
+    - name: Test module get
+      vmware.vmware.guest_info:
+        hostname: <VCENTER_FQDN>
+        validate_certs: false
+        username: <VSPHERE_ADMIN_USER>
+        password: "{{ vcenter_password }}"
+        name: "<VM_OBJECT_NAME_IN_VCENTER>"
+      register: result
+    - name: Output result
+      debug:
+        msg: "{{ result.guests }}"

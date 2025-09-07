@@ -1,0 +1,35 @@
+---
+- name: Gather scheduled tasks
+  hosts: SHANEWVM # PowerShell Module is installed here
+  gather_facts: true
+  become: true
+  tasks:
+    - name: Ensure C:\Temp exists
+      ansible.windows.win_file:
+        path: C:\Temp
+        state: directory
+    # - name: Gather scheduled tasks from Windows hosts
+    #   ansible.windows.win_shell: Get-ScheduledTask | Select-Object -Property TaskName, TaskPath, Author, Description, State, Actions, Date | ConvertTo-Csv | Out-File "C:\Temp\{{ ansible_hostname }}_Scheduled_Tasks.csv"
+    - name: Gather scheduled tasks from Windows hosts
+      ansible.windows.win_shell: |
+        Get-ScheduledTask | ForEach-Object {
+          $actions = ($_ | Select-Object -ExpandProperty Actions | ForEach-Object { $_.Execute }) -join "; "
+          [PSCustomObject]@{
+            TaskName     = $_.TaskName
+            TaskPath     = $_.TaskPath
+            Author       = $_.Author
+            Description  = $_.Description
+            State        = $_.State
+            Actions      = $actions
+            Date         = $_.Date
+          }
+        } | Export-Csv -Path "C:\Temp\{{ ansible_hostname }}_Scheduled_Tasks_{{ ansible_date_time.date }}.csv" -NoTypeInformation
+
+    - name: Fetch output of task scheduler report
+      ansible.builtin.fetch: 
+        src: C:\Temp\{{ ansible_hostname }}_Scheduled_Tasks_{{ ansible_date_time.date }}.csv
+        dest: /home/awx/aap/controller/data/projects/_16__windows/reports/
+        owner: awx
+        group: awx
+        mode: 0775
+        flat: yes

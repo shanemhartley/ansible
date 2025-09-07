@@ -1,0 +1,49 @@
+---
+- name: Remove terminated employees from a script file
+  hosts: all
+  become: true
+  gather_facts: false
+  vars_prompt: 
+    - name: username
+      prompt: What is the terminated employees username?
+      private: false
+
+    - name: mailbox
+      prompt: What is the terminated employees mailbox?
+      private: false
+   
+    - name: new_username
+      prompt: What is the new employees username? 
+      private: false
+
+    - name: new_mailbox
+      prompt: What is the new employees mailbox?
+      private: false
+
+  tasks:
+    - name: Retrieve all files
+      find:
+        paths: </path/to/script>
+        patterns: '*.sh'
+      register: scripts
+
+
+    - name: Output your .sh files
+      debug:
+        msg: "{{ item.path }}"
+      loop: "{{ scripts.files }}"
+
+    - name: Remove user from all shell scripts 
+      replace:
+        path: "{{ item.path }}"
+        regexp: "{{ mailbox }}"
+        replace: "{{ new_mailbox }}" 
+      loop: "{{ scripts.files }}"
+
+    - name: Remove user from all shell scripts 2
+      replace:
+        path: "{{ item.path }}"
+        regexp: "{{ username }}"
+        replace: "{{ new_username }}"
+      loop: "{{ scripts.files }}"
+

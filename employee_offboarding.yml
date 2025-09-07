@@ -1,0 +1,31 @@
+---
+- name: Employee Offboarding
+  hosts: all
+  become: true
+  become_user: root
+  gather_facts: false
+  tasks:
+  - name: Remove accounts
+    user: 
+      name: "{{ item }}" 
+      state: absent
+      remove: yes
+    loop:
+      - <USER1>
+      - <USER2>
+      - <USER3>
+  - name: Remove directories
+    file:
+      path: "/home/{{ item }}"
+      state: absent
+    loop:
+      - <USER1>
+      - <USER2>
+      - <USER3>
+  - name: Make SELinux adjustment
+    command: semanage login -d "{{ item }}"
+    loop:
+      - <USER1>
+      - <USER2>
+      - <USER3>
+...

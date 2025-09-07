@@ -1,0 +1,20 @@
+---
+- name: Send an sms notification 
+  hosts: localhost 
+  become: true 
+  tasks:
+    - name: Gather files to send as attachments # optional
+      find:
+        paths: "/path/to/files" 
+      register: myfiles
+    - name: Sendsms notification
+      community.general.mail:
+        host: <SMTP_HOST>
+        port: 25
+        subject: "SMS Notification - Ansible Controller"
+        body: "Hello from Ansible Controller!"
+        from: awx@<CONTROLLER>
+        to: "5613195196@txt.att.net"
+        attach: 
+           - "{{ item.path }}"
+      loop: "{{ myfiles.files }}"

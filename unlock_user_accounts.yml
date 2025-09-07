@@ -1,0 +1,25 @@
+---
+- name: Unlock accounts
+  hosts: all 
+  gather_facts: false
+  ignore_errors: true
+  become: true
+  become_user: root
+  vars_files:
+    - vault.yml
+  
+  tasks:
+  - name: Set a password on account
+    ansible.builtin.user:
+      name: "{{ item.key }}" # Key = Username in vault.yml
+      password: "{{ item.value | password_hash('sha512') }}" # Value = Password in vault.yml
+    loop: "{{ passwords | dict2items }}" # Transforms the passwords dictionary into a list, so we can loop thru it
+  - name: Unlock account
+    ansible.builtin.user:
+      name: "{{ item.key }}"
+      expires: -1
+      password_expire_max: 60 
+    loop: "{{ passwords | dict2items }}" # Transforms the passwords dictionary into a list, so we can loop thru it
+        
+...
+

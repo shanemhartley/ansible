@@ -1,0 +1,19 @@
+---
+- name: Test module
+  hosts: localhost
+  become: true
+  gather_facts: false
+  vars_files:
+    - vault.yml
+  tasks: 
+    - name: Test module
+      vmware.vmware.vm_powerstate:
+        hostname: <VCENTER_FQDN>
+        validate_certs: false
+        username: <VSPHERE_ADMIN_USER>
+        password: "{{ vcenter_password }}"
+        datacenter: "<DATACENTER_NAME>"
+        state: restarted
+        name: "<VM_OBJECT_NAME_IN_VCENTER"
+      register: result
+

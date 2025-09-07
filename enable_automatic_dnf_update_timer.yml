@@ -1,0 +1,60 @@
+---
+- name: "Update timer"
+  hosts: all
+  become: true
+  tasks: 
+  - name: Install it  
+    ansible.builtin.yum:
+      name: dnf-automatic
+      state: installed
+  - name: "Update DNF timer unit file"
+    ansible.builtin.copy:
+      remote_src: true
+      src: /usr/lib/systemd/system/dnf-automatic-install.timer
+      dest: /etc/systemd/system
+      owner: root
+      group: root
+      mode: '0644'
+  - name: "Replace default settings in timer file with our custom time!"
+    ansible.builtin.lineinfile:
+      path: /etc/systemd/system/dnf-automatic-install.timer
+      regexp: '^OnCalendar.*'
+      line: OnCalendar=Thu 2:00
+      owner: root
+      group: root
+      mode: '0644'
+  - name: "Comment out update delay from file"
+    ansible.builtin.lineinfile:
+      path: /etc/systemd/system/dnf-automatic-install.timer
+      regexp: '^RandomizedDelaySec=60m.*'
+      line: '#RandomizedDelaySec-60m.*'
+      owner: root
+      group: root
+      mode: '0644'
+  - name: "Start and enable timer service"
+    ansible.builtin.service:
+      name: dnf-automatic-install.timer 
+      state: started
+      enabled: yes
+  - name: "Daemon-reload"
+    ansible.builtin.systemd_service:
+      daemon-reload: true
+  - name: "Stop DNF-related services"
+    ansible.builtin.service:
+      name: "{{ item }}"
+      state: stopped
+      enabled: no
+    loop:
+      - dnf-automatic-download.service
+      - dnf-automatic-download.timer
+      - dnf-automatic-install.service
+      - dnf-automatic-notifyonly.service
+      - dnf-automatic-notifyonly.service
+      - dnf-automatic-notifyonly.timer
+      - dnf-automatic.service
+      - dnf-automatic.timer
+      - dnf-makecache.service
+      - dnf-makecache.timer
+      - dnf-system-upgrade-cleanup.service
+    ignore_errors: true
+...

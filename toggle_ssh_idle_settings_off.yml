@@ -1,0 +1,55 @@
+---
+- name: "Toggle SSH idle settings off"
+  hosts: all
+  become: true
+  become_user: root
+  gather_facts: false
+  tasks:
+
+    - name: Backup logind.conf prior to change
+      ansible.builtin.copy:
+        src: /etc/systemd/logind.conf
+        dest: /etc/systemd/logind.conf.bak
+        remote_src: true
+
+    - name: Backup sshd_config prior to change
+      ansible.builtin.copy:
+        src: /etc/ssh/sshd_config
+        dest: /etc/ssh/sshd_config.bak
+        remote_src: true
+
+    - name: Remove line from logind.conf
+      ansible.builtin.lineinfile:
+        path: /etc/systemd/logind.conf
+        state: absent
+        regexp: "^StopIdleSessionSec.*"
+      
+    - name: Replace line in sshd_config
+      ansible.builtin.replace:
+        path: /etc/ssh/sshd_config
+        regexp: "^ClientAliveInterval 600"
+        replace: "#ClientAliveInterval 600"
+
+    - name: Replace line in sshd_config 
+      ansible.builtin.replace:
+        path: /etc/ssh/sshd_config
+        regexp: "^ClientAliveCountMax 1"
+        replace: "#ClientAliveCountMax 1"
+
+    - name: Validate sshd_config
+      ansible.builtin.command:
+        cmd: "sshd -t"
+      register: sshd_validation
+      failed_when: sshd_validation.rc != 0
+
+    - name: Restart sshd after change
+      ansible.builtin.service:
+        name: sshd
+        state: restarted
+      when: sshd_validation.rc == 0
+
+    - name: Restart systemd-logind after change
+      ansible.builtin.service:
+        name: systemd-logind.service
+        state: restarted
+...

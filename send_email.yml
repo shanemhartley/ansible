@@ -1,0 +1,20 @@
+---
+- name: Send an email
+  hosts: localhost 
+  become: true 
+  tasks:
+    - name: Gather files to send as attachments # optional
+      find:
+        paths: "/path/to/files" 
+      register: myfiles
+    - name: Send Email
+      community.general.mail:
+        host: <SMTP_HOST>
+        port: 25
+        subject: "Email subject"
+        body: "Hello from Ansible Controller!"
+        from: awx@<CONTROLLER>
+        to: "Email_goes_here"
+        attach: 
+          - "{{ item.path }}"
+      loop: "{{ myfiles.files }}"
