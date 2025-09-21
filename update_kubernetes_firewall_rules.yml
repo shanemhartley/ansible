@@ -1,0 +1,56 @@
+---
+- name: Open firewall ports for a Kubernetes cluster
+  hosts: all
+  become: true
+  tasks:
+
+    - name: Control plane Kubernetes ports
+      ansible.posix.firewalld:
+        port: "{{ item }}/tcp"
+        permanent: true
+        immediate: true
+        state: enabled
+      loop:
+        - 6443  # API server
+        - 2379  # etcd client
+        - 2380  # etcd peer
+        - 10250 # kubelet API
+        - 10251 # kube-scheduler
+        - 10252 # kube-controller-manager
+        - 10255 # read-only kubelet metrics
+      when: "'kube_control_plane' in group_names"
+
+    - name: Worker nodes Kubernetes ports
+      ansible.posix.firewalld:
+        port: "{{ item }}/tcp"
+        permanent: true
+        immediate: true
+        state: enabled
+      loop:
+        - 10250 # kubelet API
+        - 10255 # read-only kubelet metrics
+        - 30000-32767 # NodePort services
+      when: "'kube_node' in group_names"
+
+    - name: Common ports used by Kubernetes
+      ansible.posix.firewalld:
+        port: "{{ item }}/tcp"
+        permanent: true
+        immediate: true
+        state: enabled
+      loop:
+        - 22    # SSH
+        - 80    # HTTP
+        - 443   # HTTPS
+
+    - name: Enable ping
+      ansible.posix.firewalld:
+        icmp_block: echo-request
+        state: disabled
+        permanent: true
+        immediate: true
+
+    - name: Reload firewalld
+      service:
+        name: firewalld
+        state: restarted
