@@ -1,6 +1,0 @@
-- name: Allow HTTPS (port 443) through the firewall
-  ansible.builtin.firewalld:
-    service: https
-    permanent: true
-    state: enabled
-    immediate: yes

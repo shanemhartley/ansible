@@ -1,6 +1,0 @@
-- name: Create an empty file
-  ansible.builtin.file:
-    path: /path/to/your/file.txt
-    state: touch
-    mode: '0644'
-
